@@ -14,6 +14,14 @@ import (
 	"log"
 )
 
+// s3Bucket defines a bucket and their configurations
+type s3Bucket struct {
+	name *string
+	acl *s3.GetBucketAclOutput
+	encryption *s3.GetBucketEncryptionOutput
+	creationDate string
+}
+
 /*
    Knowledge nugget: any structure that implements all the behaviors(i.e. methods) of an interface becomes an interface.
 */
@@ -48,14 +56,6 @@ type S3GetBucketLocationApi interface {
 	GetBucketLocation(ctx context.Context,
 		params *s3.GetBucketLocationInput,
 		optFns ...func(options *s3.Options)) (*s3.GetBucketLocationOutput, error)
-}
-
-// s3Bucket defines a bucket and their configurations
-type s3Bucket struct {
-	name string
-	acl s3.GetBucketAclOutput
-	encryption s3.GetBucketEncryptionOutput
-	creationDate string
 }
 
 // GetAllBuckets retrieves a list of your Amazon Simple Storage Service (Amazon S3) buckets.
@@ -159,13 +159,13 @@ func main() {
 
 		if encryption != nil {
 			b := s3Bucket{
-				name: *bucket.Name,
-				encryption: *encryption,
+				name: bucket.Name,
+				encryption: encryption,
 			}
 			fmt.Printf("Bucket: %+v\t KeyID: %+v\n", b.name, aws.ToString(b.encryption.ServerSideEncryptionConfiguration.Rules[0].ApplyServerSideEncryptionByDefault.KMSMasterKeyID))
 		} else {
 			b := s3Bucket{
-				name:         *bucket.Name,
+				name: bucket.Name,
 			}
 			fmt.Printf("Bucket: %+v\t KeyID: <nil>\n", b.name)
 		}
